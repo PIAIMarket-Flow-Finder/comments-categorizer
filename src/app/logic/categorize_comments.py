@@ -17,7 +17,7 @@ def _load_model():
     )
     return joblib.load(model_path)
 
-# Filters and returns comments predicted as useful (label = 1)
+# Return comments with prediction
 def categorize_comments(*, comments: List[Dict[str, Any]]) -> CommentsOut:
     if not comments:
         return CommentsOut(comments=[])
@@ -28,5 +28,4 @@ def categorize_comments(*, comments: List[Dict[str, Any]]) -> CommentsOut:
     for c, y in zip(comments, preds):
         c["category"] = int(y)     
 
-    # on renvoie tous les commentaires, maintenant annotés
     return CommentsOut(comments=comments)
