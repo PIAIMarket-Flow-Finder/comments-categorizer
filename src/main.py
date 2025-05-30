@@ -19,7 +19,7 @@ from common_code.common.models import FieldDescription, ExecutionUnitTag
 from contextlib import asynccontextmanager
 
 # Imports required by the service's model
-from app.logic.sort_useful_comments import sort_useful_comments
+from app.logic.categorize_comments import categorize_comments
 import json
 
 settings = get_settings()
@@ -27,9 +27,18 @@ settings = get_settings()
 
 class MyService(Service):
     """
-    Service that receives a list of comments with embedded vectors, filters the comments predicted 
-    as useful (label = 1) by a pre-trained XGBoost model, and returns only those comments in JSON format.
-    """
+Service that receives a list of comments with embedded vectors, uses a pre-trained 
+XGBoost model to predict a category label (from 0 to 5) for each comment, appends 
+the prediction to each comment, and returns the full annotated list in JSON format.
+
+Categories:
+0 - Bugs / technical issues  
+1 - Requested features  
+2 - Design & UX  
+3 - Performance & speed  
+4 - Login / account  
+5 - Other
+"""
 
     
 
@@ -40,8 +49,8 @@ class MyService(Service):
     def __init__(self):
         super().__init__(
             # TODO: 3. CHANGE THE SERVICE NAME AND SLUG
-            name="useful-comments-sorter",
-            slug="useful-comments-sorter",
+            name="comments-categorizer",
+            slug="comments-categorizer",
             url=settings.service_url,
             summary=api_summary,
             description=api_description,
@@ -73,7 +82,7 @@ class MyService(Service):
 
         raw = data["input"].data
 
-        sorted_comments = sort_useful_comments(**json.loads(raw))
+        sorted_comments = categorize_comments(**json.loads(raw))
 
         return {
             "result": TaskData(
@@ -135,8 +144,8 @@ async def lifespan(app: FastAPI):
 
 # TODO: 6. CHANGE THE API DESCRIPTION AND SUMMARY
 api_description = """
-This API receives a list of comments with precomputed vector embeddings and returns only those 
-predicted as useful by a trained XGBoost model.
+This API receives a list of comments with precomputed vector embeddings and uses a 
+pre-trained XGBoost model to predict a category label (from 0 to 5) for each comment.
 
 ### Input (application/json):
 
@@ -146,16 +155,25 @@ predicted as useful by a trained XGBoost model.
 
 ### Output (application/json):
 
-Returns a filtered list:
-- `comments`: Subset of input comments for which the model predicted usefulness (label = 1)
+Returns the full list of input comments, each annotated with:
+- `prediction`: Integer label between 0 and 5, predicted by the model
+
+### Categories:
+0 - Bugs / technical issues  
+1 - Requested features  
+2 - Design & UX  
+3 - Performance & speed  
+4 - Login / account  
+5 - Other
 """
-api_summary = "Filter useful user comments using a pre-trained XGBoost model"
+
+api_summary = "Classify user comments into 6 categories using a pre-trained XGBoost model"
 
 # Define the FastAPI application with information
 # TODO: 7. CHANGE THE API TITLE, VERSION, CONTACT AND LICENSE
 app = FastAPI(
     lifespan=lifespan,
-    title="Usefull Comments Sorter",
+    title="Comments Categorizer",
     description=api_description,
     version="0.0.1",
     contact={
