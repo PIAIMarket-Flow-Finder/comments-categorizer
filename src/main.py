@@ -27,20 +27,18 @@ settings = get_settings()
 
 class MyService(Service):
     """
-Service that receives a list of comments with embedded vectors, uses a pre-trained 
-XGBoost model to predict a category label (from 0 to 5) for each comment, appends 
+Service that receives a list of comments with embedded vectors, uses a pre-trained
+XGBoost model to predict a category label (from 0 to 5) for each comment, appends
 the prediction to each comment, and returns the full annotated list in JSON format.
 
 Categories:
-0 - Bugs / technical issues  
-1 - Requested features  
-2 - Design & UX  
-3 - Performance & speed  
-4 - Login / account  
+0 - Bugs / technical issues
+1 - Requested features
+2 - Design & UX
+3 - Performance & speed
+4 - Login / account
 5 - Other
 """
-
-    
 
     # Any additional fields must be excluded for Pydantic to work
     _model: object
@@ -144,7 +142,7 @@ async def lifespan(app: FastAPI):
 
 # TODO: 6. CHANGE THE API DESCRIPTION AND SUMMARY
 api_description = """
-This API receives a list of comments with precomputed vector embeddings and uses a 
+This API receives a list of comments with precomputed vector embeddings and uses a
 pre-trained XGBoost model to predict a category label (from 0 to 5) for each comment.
 
 ### Input (application/json):
@@ -159,11 +157,11 @@ Returns the full list of input comments, each annotated with:
 - `prediction`: Integer label between 0 and 5, predicted by the model
 
 ### Categories:
-0 - Bugs / technical issues  
-1 - Requested features  
-2 - Design & UX  
-3 - Performance & speed  
-4 - Login / account  
+0 - Bugs / technical issues
+1 - Requested features
+2 - Design & UX
+3 - Performance & speed
+4 - Login / account
 5 - Other
 """
 
